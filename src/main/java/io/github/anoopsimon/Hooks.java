@@ -5,13 +5,12 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.reporter.ExtentSparkReporter;
 import io.github.anoopsimon.utils.FrameworkProperties;
+import io.github.anoopsimon.utils.GridChecker;
 import org.junit.After;
 import org.junit.Before;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import java.net.MalformedURLException;
@@ -19,7 +18,7 @@ import java.net.URL;
 
 public class Hooks {
     private  ExtentReports extent;
-
+    private WebDriver driver ;
     protected GUI gui;
     @Before
     public void setUp() throws MalformedURLException {
@@ -33,16 +32,20 @@ public class Hooks {
         test.log(Status.INFO,"Browser execution mode "+ executionMode);
 
 
-        WebDriver driver =null;
+
         EdgeOptions edgeOptions = new EdgeOptions();
         if(executionMode.equalsIgnoreCase("grid"))
         {
+            String gridUrl=FrameworkProperties.get("grid.url");
+            GridChecker.checkGridAvailability(gridUrl);
+            test.log(Status.INFO,"Grid URL : "+ gridUrl);
+
             //chromeOptions.setCapability("browserVersion", "100");
             edgeOptions.setCapability("platformName", "Linux");
             edgeOptions.setCapability("se:name", "My simple test");
             edgeOptions.setCapability("se:sampleMetadata", "Sample metadata value");
 
-            driver = new RemoteWebDriver(new URL(FrameworkProperties.get("grid.url")), edgeOptions);
+            driver = new RemoteWebDriver(new URL(gridUrl), edgeOptions);
         }
         else if (executionMode.equalsIgnoreCase("local")){
             driver = new EdgeDriver();
@@ -54,7 +57,9 @@ public class Hooks {
     }
 
     @After
-    public void cleanp(){
+    public void cleanup()
+    {
+        if(driver!=null) driver.quit();
         extent.flush();
     }
 }
