@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nested Iframes Test</title>
+</head>
+<body>
+<h1>Nested Iframes Example</h1>
+<iframe id="frame1" style="height: 500px; width: 500px;" srcdoc="
+        <h2>Iframe Level 1</h2>
+        <iframe id='frame2' style='height: 400px; width: 400px;' srcdoc=&quot;
+            <h3>Iframe Level 2</h3>
+            <iframe id='frame3' style='height: 300px; width: 300px;' srcdoc=&amp;quot;
+                <h4>Iframe Level 3</h4>
+                <iframe id='frame4' style='height: 200px; width: 200px;' srcdoc=&amp;amp;quot;
+                    <h5>Iframe Level 4 - Login Form</h5>
+                    <form>
+                        <label for='username'>Username:</label><br>
+                        <input type='text' id='username' name='username'><br>
+                        <label for='password'>Password:</label><br>
+                        <input type='password' id='password' name='password'><br><br>
+                        <input type='submit' value='Submit'>
+                    </form>
+                &amp;amp;quot;>
+                </iframe>
+            &amp;quot;>
+            </iframe>
+        &quot;>
+        </iframe>
+    ">
+</iframe>
+</body>
+</html>

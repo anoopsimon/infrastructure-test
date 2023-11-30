@@ -1,0 +1,12 @@
+{
+  "requests": {
+    "getUser": {
+      "method": "GET",
+      "url": "https://api.example.com/users/{userId}",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {token}"
+      }
+    }
+  }
+}

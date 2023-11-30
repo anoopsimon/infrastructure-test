@@ -7,8 +7,11 @@ import org.openqa.selenium.*;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +29,10 @@ public class GUI {
         this.test = test;
     }
 
-    private By parseLocator(String locatorString) {
+    private By parseLocator(String locatorString)
+    {
         String locator= Locators.get(locatorString);
+
         if(Strings.isNullOrEmpty(locatorString)) throw new RuntimeException(String.format("Locator key %s not found in locator/locator.properties file",locatorString));
         if (locator.startsWith("//") || locator.startsWith("(")) {
             return By.xpath(locator);
@@ -49,7 +54,6 @@ public class GUI {
             WebElement element = driver.findElement(parseLocator(locator));
             element.sendKeys(text);
             test.pass("Typed text '" + text + "' into element with locator: " + locator);
-
     }
 
     public void type(String locator, Keys keys) {
@@ -260,4 +264,69 @@ public class GUI {
         }
     }
 
+    public WebElement getElementIframe(String s){
+        //TODO : check for null
+        return findElementInNestedIframe(parseLocator(s));
+
+    }
+
+    /**
+     * Recursively searches for an element within nested iframes.
+     *
+     * This method iterates through all iframes in the current DOM context.
+     * It switches to each iframe and searches for the specified element.
+     * If the element is not found in the current iframe, it recursively searches
+     * within any nested iframes.
+     *
+     * The method employs WebDriverWait to handle loading times within iframes.
+     * Implicit waits are temporarily disabled during the execution to optimize performance.
+     *
+     * @param elementLocator The locator of the element to type into.
+     * @return WebElement The found WebElement, or null if the element is not found.
+     */
+    public WebElement findElementInNestedIframe(By elementLocator)
+    {
+        updateImplicitWaitTimeout(Duration.ofSeconds(1));
+
+        // Check if the element is present in the current context
+        if (!driver.findElements(elementLocator).isEmpty()) {
+            return driver.findElement(elementLocator);
+        }
+
+        // Find all iframes in the current context
+        List<WebElement> iframes = driver.findElements(By.tagName("iframe"));
+
+        for (WebElement iframe : iframes) {
+
+            new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(iframe));
+
+            // Recursively search for the element in the iframe
+            WebElement element = findElementInNestedIframe(elementLocator);
+            if (element != null) {
+                return element;
+            }
+
+            // If not found, switch back to the parent frame and continue
+            driver.switchTo().parentFrame();
+        }
+
+        // Re-enable implicit waits (if previously used)
+        updateImplicitWaitTimeout(Duration.ofSeconds(10));
+
+        // Return null if element is not found in any iframes
+        return null;
+    }
+
+    private void updateImplicitWaitTimeout(Duration duration) {
+         driver.manage().timeouts().implicitlyWait(duration);
+    }
+
+    public void hardWait(Duration ofSeconds)
+    {
+        try{
+            Thread.sleep(ofSeconds.toMillis());
+        }catch (Exception e){
+
+        }
+    }
 }
