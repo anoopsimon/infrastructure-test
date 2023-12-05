@@ -1,5 +1,6 @@
-package io.github.anoopsimon;
+package io.github.anoopsimon.unittests;
 
+import io.github.anoopsimon.Hooks;
 import io.github.anoopsimon.utils.FrameworkProperties;
 import org.junit.Test;
 
