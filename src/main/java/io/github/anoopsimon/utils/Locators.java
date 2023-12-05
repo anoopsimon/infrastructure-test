@@ -1,31 +1,47 @@
 package io.github.anoopsimon.utils;
 
-import java.io.InputStream;
-import java.util.Properties;
+import java.io.*;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Locators {
-    private static Properties properties;
+    private static Map<String, String> locatorsMap = new HashMap<>();
 
     public Locators() {
-        loadProperties();
+        loadLocators();
     }
 
-    private void loadProperties() {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("locators/locator.properties")) {
-            properties = new Properties();
-            if (input == null) {
-                System.out.println("Sorry, unable to find locator.properties");
+    private void loadLocators() {
+        try {
+            // Assuming the project root is the working directory
+            File file = Paths.get("src", "test", "resources", "locators", "locators.csv").toFile();
+            if (!file.exists()) {
+                System.out.println("Sorry, unable to find locators.csv");
                 return;
             }
-            properties.load(input);
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                boolean isFirstLine = true;
+                while ((line = reader.readLine()) != null) {
+                    if (isFirstLine) {
+                        isFirstLine = false;
+                        continue;
+                    }
+                    String[] keyValue = line.split(",");
+                    if (keyValue.length == 2) {
+                        locatorsMap.put(keyValue[0].trim(), keyValue[1].trim());
+                    }
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
     public static String get(String key) {
-        new Locators().loadProperties();
+        new Locators().loadLocators();
 
-        return properties.getProperty(key);
+        return locatorsMap.get(key);
     }
 }

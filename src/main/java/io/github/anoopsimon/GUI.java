@@ -32,11 +32,13 @@ public class GUI {
     private By parseLocator(String locatorString)
     {
         String locator= Locators.get(locatorString);
-
+        System.out.println("Locator :" + locator);
         if(Strings.isNullOrEmpty(locatorString)) throw new RuntimeException(String.format("Locator key %s not found in locator/locator.properties file",locatorString));
-        if (locator.startsWith("//") || locator.startsWith("(")) {
+        if (locator.startsWith("//") || locator.startsWith("("))
+        {
             return By.xpath(locator);
-        } else {
+        } else
+        {
             return By.cssSelector(locator);
         }
     }
